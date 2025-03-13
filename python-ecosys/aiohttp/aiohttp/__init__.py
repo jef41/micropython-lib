@@ -109,8 +109,10 @@ class ClientSession:
         while redir_cnt < 2:
             try:
                 if self._timeout:
-                    print(f"{self._timeout=}")
-                    reader = await asyncio.wait_for(self.request_raw(method, url, data, json, ssl, params, headers),self._timeout)
+                    reader = await asyncio.wait_for(
+                        self.request_raw(method, url, data, json, ssl, params, headers),
+                        self._timeout,
+                    )
                 else:
                     reader = await self.request_raw(method, url, data, json, ssl, params, headers)
             except asyncio.TimeoutError as e:  # Mandatory error trapping
@@ -207,7 +209,7 @@ class ClientSession:
                 method,
                 path,
                 version,
-                "\r\n".join(f"{k}: {v}" for k, v in headers.items()) + "\r\n" if headers else "",
+                ("\r\n".join(f"{k}: {v}" for k, v in headers.items()) + "\r\n" if headers else ""),
             )
         else:
             if json:
