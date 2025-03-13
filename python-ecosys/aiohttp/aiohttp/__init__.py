@@ -88,13 +88,12 @@ class _RequestContextManager:
 
 
 class ClientSession:
-    def __init__(self, base_url="", headers={}, version=HttpVersion10, timeout=None):
+    def __init__(self, base_url="", headers={}, version=HttpVersion10):
         self._reader = None
         self._base_url = base_url
         self._base_headers = {"Connection": "close", "User-Agent": "compat"}
         self._base_headers.update(**headers)
         self._http_version = version
-        self._timeout = timeout
 
     async def __aenter__(self):
         return self
@@ -107,14 +106,7 @@ class ClientSession:
     async def _request(self, method, url, data=None, json=None, ssl=None, params=None, headers={}):
         redir_cnt = 0
         while redir_cnt < 2:
-            try:
-                if self._timeout:
-                    print(f"{self._timeout=}")
-                    reader = await asyncio.wait_for(self.request_raw(method, url, data, json, ssl, params, headers),self._timeout)
-                else:
-                    reader = await self.request_raw(method, url, data, json, ssl, params, headers)
-            except asyncio.TimeoutError as e:  # Mandatory error trapping
-                raise e
+            reader = await self.request_raw(method, url, data, json, ssl, params, headers)
             _headers = []
             sline = await reader.readline()
             sline = sline.split(None, 2)
